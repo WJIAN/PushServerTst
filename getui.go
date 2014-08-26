@@ -68,10 +68,39 @@ func gettuipush(clientid string, data []byte) ([]byte, error){
 }
 
 
+// Method: GET
+// Uri: /ack/taskid
+func ack(w http.ResponseWriter, r *http.Request) {
+	fun := "rest.ack"
+	if r.Method != "GET" {
+		//writeRestErr(w, "method err")
+		http.Error(w, "method err", 405)
+		return
+	}
+
+	slog.Infof("%s %s", fun, r.URL.Path)
+	path := strings.Split(r.URL.Path, "/")
+	//slog.Info("%q", path)
+
+	if len(path) != 3 {
+		//writeRestErr(w, "uri err")
+		http.Error(w, "uri invalid", 400)
+		return
+	}
+
+	// path[0] "", path[1] push
+	taskid := path[2]
+
+	slog.Infof("%s taskid:%s", fun, taskid)
+
+
+}
+
+
 // Method: POST
 // Uri: /push/CLIENT_ID
 func sub(w http.ResponseWriter, r *http.Request) {
-	fun := "rest.push"
+	fun := "rest.sub"
 	//debug_show_request(r)
 	if r.Method != "POST" {
 		//writeRestErr(w, "method err")
@@ -181,6 +210,7 @@ func push(w http.ResponseWriter, r *http.Request) {
 func StartHttp(httpport string) {
 	http.HandleFunc("/getui/", push)
 	http.HandleFunc("/getuisub/", sub)
+	http.HandleFunc("/getuiack/", ack)
 
 	err := http.ListenAndServe(httpport, nil) //设置监听的端口
 	if err != nil {
