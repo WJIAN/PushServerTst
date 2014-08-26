@@ -46,8 +46,10 @@ func restGetuipush(clientid string, data []byte) string {
 	slog.Infof("%s cid:%s len:%d data:%s", fun, clientid, len(data), data)
 	out, err := gettuipush(clientid, data)
 	if err != nil {
+		slog.Errorf("%s cid:%s err:%s", fun, clientid, err)
 		return fmt.Sprintf("%s", err)
 	} else {
+		slog.Infof("%s cid:%s return:%s", fun, clientid, out)
 		return fmt.Sprintf("%s", out)
 	}
 
