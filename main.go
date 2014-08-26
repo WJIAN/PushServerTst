@@ -15,7 +15,7 @@ func main() {
 
 
 	slog.Infoln("Start http")
-	StartHttp(":8599")
+	StartHttp(httpAddr)
 	
 
 }

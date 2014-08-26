@@ -7,6 +7,7 @@ import (
 	"bytes"
     "net/http"
 	"io/ioutil"
+	"os"
 
 	"PushServer/slog"
 	"PushServer/rediscluster"
@@ -33,7 +34,10 @@ func getClients() []string {
 
 
 	mcmd := make(map[string][]interface{})
-    mcmd["10.241.221.106:9600"] = cmd
+	//mcmd["10.241.221.106:9600"] = cmd
+	for _, ar := range(redisAddrs) {
+		mcmd[ar] = cmd
+	}
 
 	rp := redisPool.Cmd(mcmd)
 	slog.Debugln(fun, "evalsha1", rp)
@@ -70,7 +74,8 @@ func restPush(clientid string, sendData []byte) string {
 	slog.Infof("%s cid:%s len:%d data:%s", fun, clientid, len(sendData), sendData)
 	
 	client := &http.Client{}
-	url := fmt.Sprintf("http://42.120.4.112:9090/push/%s/0/0", clientid)
+	//url := fmt.Sprintf("http://42.120.4.112:9090/push/%s/0/0", clientid)
+	url := fmt.Sprintf("http://%s/push/%s/0/0", pushHost, clientid)
 	reqest, err := http.NewRequest("POST", url, bytes.NewReader(sendData))
 	if err != nil {
 		return fmt.Sprintf("push newreq err:%s", err)
@@ -188,6 +193,12 @@ Bill Gates当时刚从Seattle Computer Product公司购买了QDOS（从文学效
 
 
 var (
+	httpAddr string = os.Args[1]
+	pushHost string = os.Args[2]
+	redisAddrs []string = strings.Split(os.Args[3], ",")
+	SinceGetuiFile = os.Args[4]
+
+
 	pushmsgCount int32 = 0
 	redisPool *rediscluster.RedisPool
 

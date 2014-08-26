@@ -16,11 +16,6 @@ import (
 	"PushServer/util"
 )
 
-const (
-	SinceGetuiFile string = "./clientds.dat"
-
-)
-
 func getSinceGetui() {
 	// 获取之前已经获取到的getuicliends
 	data, err := util.GetFile(SinceGetuiFile)
