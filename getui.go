@@ -43,13 +43,14 @@ func getSinceGetui() {
 
 func restGetuipush(clientid string, data []byte) string {
 	fun := "restGetuipush"
+	stp := util.Timestamp2014()
 	slog.Infof("%s cid:%s len:%d data:%s", fun, clientid, len(data), data)
 	out, err := gettuipush(clientid, data)
 	if err != nil {
-		slog.Errorf("%s cid:%s err:%s", fun, clientid, err)
+		slog.Errorf("%s cid:%s stamp:%d, err:%s", fun, clientid, stp, err)
 		return fmt.Sprintf("%s", err)
 	} else {
-		slog.Infof("%s cid:%s return:%s", fun, clientid, out)
+		slog.Infof("%s cid:%s stamp:%d return:%s", fun, clientid, stp, out)
 		return fmt.Sprintf("%s", out)
 	}
 
@@ -93,10 +94,40 @@ func ack(w http.ResponseWriter, r *http.Request) {
 	// path[0] "", path[1] push
 	taskid := path[2]
 
-	slog.Infof("%s taskid:%s", fun, taskid)
+	slog.Infof("%s stamp:%d taskid:%s", fun, util.Timestamp2014(), taskid)
 
 
 }
+
+// Method: GET
+// Uri: /ack2/clientid/taskid
+func ack2(w http.ResponseWriter, r *http.Request) {
+	fun := "rest.ack2"
+	if r.Method != "GET" {
+		//writeRestErr(w, "method err")
+		http.Error(w, "method err", 405)
+		return
+	}
+
+	slog.Infof("%s %s", fun, r.URL.Path)
+	path := strings.Split(r.URL.Path, "/")
+	//slog.Info("%q", path)
+
+	if len(path) != 4 {
+		//writeRestErr(w, "uri err")
+		http.Error(w, "uri invalid", 400)
+		return
+	}
+
+	// path[0] "", path[1] push
+	cid := path[2]
+	taskid := path[3]
+
+	slog.Infof("%s stamp:%d cid:%s taskid:%s", fun, util.Timestamp2014(), cid, taskid)
+
+
+}
+
 
 
 // Method: POST
@@ -213,6 +244,7 @@ func StartHttp(httpport string) {
 	http.HandleFunc("/getui/", push)
 	http.HandleFunc("/getuisub/", sub)
 	http.HandleFunc("/getuiack/", ack)
+	http.HandleFunc("/getuiack2/", ack2)
 
 	err := http.ListenAndServe(httpport, nil) //设置监听的端口
 	if err != nil {

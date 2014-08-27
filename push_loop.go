@@ -26,7 +26,7 @@ type sendState struct {
 
 
 func getClients() []string {
-	fun := "updateMan"
+	fun := "getClients"
     cmd := []interface{}{
 		"keys",
 		"I.*",
@@ -40,7 +40,7 @@ func getClients() []string {
 	}
 
 	rp := redisPool.Cmd(mcmd)
-	slog.Debugln(fun, "evalsha1", rp)
+	slog.Debugln(fun, "redis rv:", rp)
 
 
 	clientlist := []string{}
@@ -48,15 +48,13 @@ func getClients() []string {
 		cl, err := r.List()
 		if err != nil {
 			slog.Errorf("%s addr:%s err:%s", fun, addr, err)
-			break
+			continue
 		}
 
 		for _, v := range(cl) {
 			clientlist = append(clientlist, strings.Split(v, ".")[1])
 		}
 
-
-		break
 	}
 
 
@@ -110,8 +108,9 @@ func restPush(clientid string, sendData []byte) string {
 }
 
 func updateMan() {
+	fun := "updateMan"
 	clis := getClients()
-	slog.Infoln(clis)
+	slog.Infoln(fun, clis)
 	for _, c := range(clis) {
 		if _, ok := sendManNb[c]; !ok {
 			sendManNb[c] = &sendState {
@@ -122,7 +121,7 @@ func updateMan() {
 		}
 	}
 
-	slog.Infof("%s sendManNb len:%d", "updateMan", len(sendManNb))
+	slog.Infof("%s sendManNb len:%d", fun, len(sendManNb))
 
 }
 
